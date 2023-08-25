@@ -1,0 +1,110 @@
+version: "3.3"
+
+services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mstemplate
+      MONGO_INITDB_ROOT_PASSWORD: mstemplate123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-tier
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.1
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+      - http.host=0.0.0.0
+      - network.host=0.0.0.0
+      - transport.host=localhost
+      - xpack.security.enabled=true
+      - xpack.security.audit.enabled=true
+      - xpack.monitoring.collection.enabled=true
+      - ELASTIC_PASSWORD=mstemplate123
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - app-tier
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  # postgresql: ...
+
+  redis:
+    image: "redis"
+    command: redis-server --requirepass mstemplate123
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    networks:
+      - app-tier
+
+  # #message brokers
+  # kafka: ...
+
+  # redpanda: ...
+
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   environment:
+  #     - RABBITMQ_ERLANG_COOKIE=mqadmin
+  #     - RABBITMQ_DEFAULT_USER=farlley_ferreira
+  #     - RABBITMQ_DEFAULT_PASS=mstemplate123
+  #     - CLUSTERED=true
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   volumes:
+  #     - ./volumes/rabbitmq:/var/lib/rabbitmq
+  #   networks:
+  #     - app-tier
+
+  # #log and monitoring
+  # elasticsearch-apm:
+  #   apm-server:
+  #   image: docker.elastic.co/apm/apm-server:7.11.1
+  #   ports:
+  #     - "8200:8200"
+  #     - "8201:8200"
+  #   environment:
+  #     - apm-server.host=0.0.0.0
+  #     - apm-server.frontend.enabled=true
+  #     - setup.template.settings.index.number_of_shards=1
+  #     - setup.template.settings.index.codec=best_compression
+  #     - output.elasticsearch.hosts=["elasticsearch:9200"]
+  #   command:
+  #     [
+  #       "apm-server",
+  #       "-e",
+  #       "-E",
+  #       "output.elasticsearch.username=elastic",
+  #       "-E",
+  #       "output.elasticsearch.password=mstemplate123",
+  #     ]
+  #   networks:
+  #     - app-tier
+  #   depends_on:
+  #     - elasticsearch
+
+  # loki: ...
+  # tempo: ...
+  # #security
+  # keycloack: ...
+
+networks:
+  app-tier:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  elasticsearch_data:
+  redis_data:
