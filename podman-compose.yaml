@@ -36,7 +36,17 @@ services:
       retries: 10
       test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
 
-  # postgresql: ...
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: mstemplate
+      POSTGRES_PASSWORD: mstemplate123
+    volumes:
+      - postgres_data:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app-tier
 
   redis:
     image: "redis"
@@ -49,54 +59,93 @@ services:
       - app-tier
 
   # #message brokers
-  # kafka: ...
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v22.2.2
+    command:
+      - redpanda start
+      - --smp 1
+      - --overprovisioned
+      - --node-id 0
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr 0.0.0.0:8082
+      - --advertise-pandaproxy-addr localhost:8082
+    ports:
+      - 8081:8081
+      - 8082:8082
+      - 9092:9092
+      - 9644:9644
+      - 29092:29092
 
-  # redpanda: ...
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    entrypoint: /bin/sh
+    command: -c "echo \"$$CONSOLE_CONFIG_FILE\" > /tmp/config.yml; /app/console"
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:29092"]
+          schemaRegistry:
+            enabled: true
+            urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+        connect:
+          enabled: true
+          clusters:
+            - name: local-connect-cluster
+              url: http://connect:8083
+    ports:
+      - 8080:8080
+    depends_on:
+      - redpanda
 
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   environment:
-  #     - RABBITMQ_ERLANG_COOKIE=mqadmin
-  #     - RABBITMQ_DEFAULT_USER=farlley_ferreira
-  #     - RABBITMQ_DEFAULT_PASS=mstemplate123
-  #     - CLUSTERED=true
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
-  #   volumes:
-  #     - ./volumes/rabbitmq:/var/lib/rabbitmq
-  #   networks:
-  #     - app-tier
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=mqadmin
+      - RABBITMQ_DEFAULT_USER=farlley_ferreira
+      - RABBITMQ_DEFAULT_PASS=mstemplate123
+      - CLUSTERED=true
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - app-tier
 
-  # #log and monitoring
-  # elasticsearch-apm:
-  #   apm-server:
-  #   image: docker.elastic.co/apm/apm-server:7.11.1
-  #   ports:
-  #     - "8200:8200"
-  #     - "8201:8200"
-  #   environment:
-  #     - apm-server.host=0.0.0.0
-  #     - apm-server.frontend.enabled=true
-  #     - setup.template.settings.index.number_of_shards=1
-  #     - setup.template.settings.index.codec=best_compression
-  #     - output.elasticsearch.hosts=["elasticsearch:9200"]
-  #   command:
-  #     [
-  #       "apm-server",
-  #       "-e",
-  #       "-E",
-  #       "output.elasticsearch.username=elastic",
-  #       "-E",
-  #       "output.elasticsearch.password=mstemplate123",
-  #     ]
-  #   networks:
-  #     - app-tier
-  #   depends_on:
-  #     - elasticsearch
+  #log and monitoring
 
-  # loki: ...
-  # tempo: ...
+  elasticsearch-apm:
+    apm-server:
+    image: docker.elastic.co/apm/apm-server:8.9.1
+    ports:
+      - "8200:8200"
+      - "8201:8200"
+    environment:
+      - apm-server.host=0.0.0.0
+      - apm-server.frontend.enabled=true
+      - setup.template.settings.index.number_of_shards=1
+      - setup.template.settings.index.codec=best_compression
+      - output.elasticsearch.hosts=["elasticsearch:9200"]
+    command:
+      [
+        "apm-server",
+        "-e",
+        "-E",
+        "output.elasticsearch.username=elastic",
+        "-E",
+        "output.elasticsearch.password=mstemplate123",
+      ]
+    networks:
+      - app-tier
+    depends_on:
+      - elasticsearch
+
   # #security
   # keycloack: ...
 
@@ -105,6 +154,13 @@ networks:
     driver: bridge
 
 volumes:
-  mongo_data:
   elasticsearch_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  postgres_data:
+    driver: local
+  mongo_data:
+    driver: local
   redis_data:
+    driver: local
