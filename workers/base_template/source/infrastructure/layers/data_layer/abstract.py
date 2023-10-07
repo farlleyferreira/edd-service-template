@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from project.helpers.pydantic_typo import ObjectId
 
 
 class AbstractDataLayer(ABC):  # pragma: no cover
@@ -8,7 +7,7 @@ class AbstractDataLayer(ABC):  # pragma: no cover
         super().__init__()
 
     @abstractmethod
-    async def get_buildinfo(self) -> bool:
+    async def connection_alive(self) -> bool:
         pass
 
     @abstractmethod
@@ -20,15 +19,15 @@ class AbstractDataLayer(ABC):  # pragma: no cover
         pass
 
     @abstractmethod
-    async def insert_item(self, item) -> ObjectId:
+    async def insert_item(self, item) -> str:
         pass
 
     @abstractmethod
-    async def insert_list(self, itens: list[dict]) -> list[ObjectId]:
+    async def insert_list(self, itens: list[dict]) -> list[str]:
         pass
 
     @abstractmethod
-    async def update_by_id(self, id: ObjectId, data: dict) -> tuple:
+    async def update_by_id(self, id: str, data: dict) -> tuple:
         pass
 
     @abstractmethod

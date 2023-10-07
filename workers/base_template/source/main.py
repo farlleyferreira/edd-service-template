@@ -16,11 +16,10 @@ def main() -> str:
 
     check_integrations = CheckIntegrations()
     with multiprocessing.Pool(processes=process_number) as pool:
-        pool.map(check_integrations.worker_function, range(num_of_workers))
+        pool.map(check_integrations.integrations_status, [num_of_workers])
 
     print(f"All {num_of_workers} tasks completed")
-
-    return "OK"
+    return
 
 
 def init():

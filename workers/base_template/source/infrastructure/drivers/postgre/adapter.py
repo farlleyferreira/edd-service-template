@@ -1,7 +1,7 @@
 from source.infrastructure.layers.data_layer.abstract import AbstractDataLayer
 
 
-class Redis(AbstractDataLayer):
+class Postgre(AbstractDataLayer):
     def __init__(self, resource_name: str) -> None:
         self.resource_name: str = resource_name
         super().__init__(resource_name=resource_name)

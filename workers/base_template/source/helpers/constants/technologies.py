@@ -7,3 +7,8 @@ class Database(Enum):
     MONGO = "mongo"
     POSTGRES = "postgres"
     REDIS = "redis"
+
+
+class Queue(Enum):
+    RABBITMQ = "rabbitmq"
+    REDPANDA = "redpanda"   
