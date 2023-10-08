@@ -10,7 +10,7 @@ class QueueLayer:  # pragma: no cover
     ) -> None:
         technology_mapping = {
             Queue.REDPANDA: RedPanda,
-            Queue.RABBITMQ: RabbitMq,            
+            Queue.RABBITMQ: RabbitMq,
         }
 
         self.instance = technology_mapping.get(technology, Queue.RABBITMQ)(

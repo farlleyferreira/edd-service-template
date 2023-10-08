@@ -11,4 +11,4 @@ class Database(Enum):
 
 class Queue(Enum):
     RABBITMQ = "rabbitmq"
-    REDPANDA = "redpanda"   
+    REDPANDA = "redpanda"

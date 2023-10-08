@@ -26,30 +26,35 @@ class CheckIntegrations(object):
 
     def check_databases(self) -> bool:
         try:
+            databases = [
+                Database.ELASTICSEARCH,
+                Database.POSTGRES,
+                Database.REDIS,
+                Database.MONGO,
+            ]
+
             results = self.execute_multithread(
                 process=self.check_database_status,
-                params=[
-                    Database.ELASTICSEARCH,
-                    Database.POSTGRES,
-                    Database.REDIS,
-                    Database.MONGO,
-                ],
-                max_threads=4,
+                params=databases,
+                max_threads=len(databases),
                 process_name="checkbuildinfo",
             )
+
             return all(results)
         except Exception as error:
             raise error
 
     def check_queue(self) -> bool:
         try:
+            queues = [
+                Queue.RABBITMQ,
+                Queue.REDPANDA,
+            ]
+
             results = self.execute_multithread(
                 process=self.check_queue_status,
-                params=[
-                    Queue.RABBITMQ,
-                    Queue.REDPANDA,
-                ],
-                max_threads=2,
+                params=queues,
+                max_threads=len(queues),
                 process_name="checkbrokerinfo",
             )
             return all(results)
