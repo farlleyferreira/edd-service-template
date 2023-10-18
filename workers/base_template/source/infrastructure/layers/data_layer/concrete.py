@@ -1,6 +1,6 @@
 # pragma: no cover
 from source.helpers.constants.technologies import Database
-from source.infrastructure.drivers.elasticsearch.adapter import Elk
+from source.infrastructure.drivers.elasticsearch.adapter import Elasticsearch
 from source.infrastructure.drivers.postgre.adapter import Postgre
 from source.infrastructure.drivers.redis.adapter import Redis
 from source.infrastructure.drivers.mongo.adapter import Mongo
@@ -11,7 +11,7 @@ class DataLayer:  # pragma: no cover
         self, technology: Database = Database.MONGO, resource_name: str = "default"
     ) -> None:
         technology_mapping = {
-            Database.ELASTICSEARCH: Elk,
+            Database.ELASTICSEARCH: Elasticsearch,
             Database.POSTGRES: Postgre,
             Database.REDIS: Redis,
             Database.MONGO: Mongo,

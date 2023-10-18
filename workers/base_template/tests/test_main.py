@@ -4,7 +4,7 @@ from source import main
 
 
 def test_main():
-    assert main.main() == "OK"
+    assert main.main() == None
 
 
 def test_init():

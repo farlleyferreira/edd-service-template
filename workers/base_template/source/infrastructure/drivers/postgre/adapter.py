@@ -1,4 +1,6 @@
 from source.infrastructure.layers.data_layer.abstract import AbstractDataLayer
+from source.infrastructure.drivers.postgre.connector import PostgreConnector
+from sqlalchemy import select
 
 
 class Postgre(AbstractDataLayer):
@@ -7,7 +9,11 @@ class Postgre(AbstractDataLayer):
         super().__init__(resource_name=resource_name)
 
     def connection_alive(self) -> bool:
-        pass
+        postgre = PostgreConnector()
+        client = postgre.create_client()
+        with client.connect() as connection:
+            result = connection.execute(select(1)).first()[0]
+            return True if result else False
 
     def get_by_id(self, id: str) -> dict:
         pass

@@ -8,7 +8,6 @@ class MongoConnector:
         self.host: str = os.getenv("MONGO_HOST")
         self.username: str = os.getenv("MONGO_USERNAME")
         self.password: str = os.getenv("MONGO_PASSWORD")
-        self.database: str = os.getenv("MONGO_DATABASE")
 
     def create_client(self) -> MongoClient:
         if not self.host:

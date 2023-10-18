@@ -4,12 +4,12 @@ from elasticsearch import Elasticsearch
 
 class ElasticsearchConnector(object):
     def __init__(self) -> None:
-        self.hosts = os.getenv("ELK_HOSTS")
-        self.username = os.getenv("ELK_USERNAME")
-        self.password = os.getenv("ELK_PASSWORD")
+        self.hosts = os.getenv("ELASTIC_HOSTS")
+        self.username = os.getenv("ELASTIC_USERNAME")
+        self.password = os.getenv("ELASTIC_PASSWORD")
 
     def create_client(self) -> Elasticsearch:
-        if not self.host:
+        if not self.hosts:
             raise ValueError("host is not defined.")
 
         try:

@@ -1,13 +1,17 @@
 from source.infrastructure.layers.data_layer.abstract import AbstractDataLayer
+from source.infrastructure.drivers.elasticsearch.connector import ElasticsearchConnector
 
 
-class Elk(AbstractDataLayer):
+class Elasticsearch(AbstractDataLayer):
     def __init__(self, resource_name: str) -> None:
         self.resource_name: str = resource_name
         super().__init__(resource_name=resource_name)
 
     def connection_alive(self) -> bool:
-        pass
+        elasticsearch = ElasticsearchConnector()
+        client = elasticsearch.create_client()
+        ping = client.ping()
+        return ping
 
     def get_by_id(self, id: str) -> dict:
         pass

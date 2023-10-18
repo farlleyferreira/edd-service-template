@@ -1,12 +1,8 @@
 import redis
 import os
 
-from project.infrastructure.monitoring_layer.aplication_general_log import Log
 
-log = Log()
-
-
-class Redis(object):
+class RedisConnector(object):
     def __init__(self):
         self.host: str = os.getenv("REDIS_HOST")
         self.port = int(os.getenv("REDIS_PORT"))

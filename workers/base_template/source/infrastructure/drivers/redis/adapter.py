@@ -1,4 +1,5 @@
 from source.infrastructure.layers.data_layer.abstract import AbstractDataLayer
+from source.infrastructure.drivers.redis.connector import RedisConnector
 
 
 class Redis(AbstractDataLayer):
@@ -7,7 +8,9 @@ class Redis(AbstractDataLayer):
         super().__init__(resource_name=resource_name)
 
     def connection_alive(self) -> bool:
-        pass
+        redis = RedisConnector()
+        client = redis.create_client()
+        return client.ping()
 
     def get_by_id(self, id: str) -> dict:
         pass

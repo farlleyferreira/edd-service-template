@@ -5,3 +5,4 @@ elasticsearch==8.10.0
 SQLAlchemy==2.0.21
 psycopg2==2.9.9
 psycopg2-binary==2.9.9
+aio-pika==9.3.0

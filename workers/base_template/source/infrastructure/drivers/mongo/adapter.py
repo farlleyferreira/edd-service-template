@@ -1,4 +1,5 @@
 from source.infrastructure.layers.data_layer.abstract import AbstractDataLayer
+from source.infrastructure.drivers.mongo.connector import MongoConnector
 
 
 class Mongo(AbstractDataLayer):
@@ -7,7 +8,10 @@ class Mongo(AbstractDataLayer):
         super().__init__(resource_name=resource_name)
 
     def connection_alive(self) -> bool:
-        pass
+        mongo = MongoConnector()
+        client = mongo.create_client()
+        build_info = client.server_info()
+        return True if build_info["ok"] else False
 
     def get_by_id(self, id: str) -> dict:
         pass
